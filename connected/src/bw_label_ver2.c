@@ -23,7 +23,7 @@ typedef unsigned char Byte;
 #define min4(a,b,c,d)  (min(min((a),(b)), min((c),(d))))
 
 /*
- * Disjoint unio-find taken right from Introduction To Algorithms
+ * Disjoint union-find taken right from Introduction To Algorithms
  * by Cormen, et al.
  */
 
@@ -55,7 +55,7 @@ static void Union(int x, int y) {
     link(find_set(x), find_set(y));
 }
 
-static int **label(Byte image[][], int rows, int cols) {
+static int **label(int *image[], int rows, int cols) {
 
 	int next_label = 1;
     int neighbors[4];
@@ -93,21 +93,39 @@ static int **label(Byte image[][], int rows, int cols) {
                 labels[r][c] = min4(neighbors[0],neighbors[1],
                 		            neighbors[2],neighbors[3]);
 
-                /* make sure all these neighbors are in the same set */
-                for (int i = 0; i < nc; i++) {
+                /* make sure all neighbors are in the same set */
+                for (int i = 0; i < nc; i++)
 
                 	/* for each neighbor union it with _______??? */
                     for (int j = 0; j < nc; j++)
                 	   Union(parent[neighbors[i]], neighbors[j]);
-                }
 			}
 
 		} /* column */
 
 		/* pass 2 */
-
-
+		for (int r = 1; r < rows - 1; r++)
+			for (int c = 1; c < cols - 1; c++)
+				if (image[r][c] != BACKGROUND)
+					labels[r][c] = find_set(labels[r][c]);
 	} /* row */
 
 	return labels;
+} /* label */
+
+
+
+int main(void) {
+
+	int image[6][6] = {
+			{255, 255, 255, 255, 255, 255},
+			{255, 000, 000, 000, 255, 255},
+			{255, 255, 255, 000, 255, 255},
+			{255, 000, 000, 000, 255, 255},
+			{255, 255, 255, 255, 000, 255},
+			{255, 255, 255, 255, 255, 255}
+	};
+
+	int **labeledimage = label(image, 6, 6);
+	return 0;
 }
