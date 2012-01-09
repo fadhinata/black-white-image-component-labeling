@@ -35,25 +35,25 @@ int *rank;
  * MAX_COMPONENTS sets.
  */
 static void init_set() {
-	parent = (int *) malloc(sizeof(int) * MAX_COMPONENTS);
-	rank = (int *) malloc(sizeof(int) * MAX_COMPONENTS);
+    parent = (int *) malloc(sizeof(int) * MAX_COMPONENTS);
+    rank = (int *) malloc(sizeof(int) * MAX_COMPONENTS);
 }
 
 /*
  * Frees up the memory used by parent and rank.
  */
 static void destroy_set() {
-	free(parent);
-	parent = NULL;
-	free(rank);
-	rank = NULL;
+    free(parent);
+    parent = NULL;
+    free(rank);
+    rank = NULL;
 }
 
 /*
  * precondition: x < MAX_COMPONENTS. See Cormen reference.
  */
 static void make_set(int x) {
-	parent[x] = x;
+    parent[x] = x;
     rank[x] = 0;
 }
 
@@ -69,13 +69,13 @@ static void make_set(int x) {
  *
  */
 static void link(int x, int y) {
-	if (rank[x] > rank[y])
-		parent[y] = x;
-	else {
-		parent[x] = y;
-		if (rank[x] == rank[y])
-			rank[y] = rank[y] + 1;
-	}
+    if (rank[x] > rank[y])
+        parent[y] = x;
+    else {
+        parent[x] = y;
+        if (rank[x] == rank[y])
+            rank[y] = rank[y] + 1;
+    }
 }
 
 /*
@@ -95,10 +95,10 @@ static void link(int x, int y) {
  */
 static int find_set(int x) {
 
-	if (x != parent[x])
-		parent[x] = find_set(parent[x]);
+    if (x != parent[x])
+        parent[x] = find_set(parent[x]);
 
-	return parent[x];
+    return parent[x];
 }
 
 /*
@@ -106,7 +106,7 @@ static int find_set(int x) {
  * reference.
  *
  * precondition: x and y are in two distinct sets. That is,
- * 				 find_set(x) != find_set(y);
+ *               find_set(x) != find_set(y);
  *
  */
 static void Union(int x, int y) {
@@ -118,13 +118,13 @@ static void Union(int x, int y) {
  * memset when we are just storing bytes.
  *
  * precondition:
- * 		1) image != NULL and there is enough memory allocated in
- * 		   image to accommodate n ints.
- * 		2) n > 0
+ *      1) image != NULL and there is enough memory allocated in
+ *         image to accommodate n ints.
+ *      2) n > 0
  */
 static void init_mem(int *image, int val, int n) {
-     for (int *p = image; p < (image + n); p++)
-    	 *p = val;
+    for (int *p = image; p < (image + n); p++)
+        *p = val;
 }
 
 /*
@@ -133,8 +133,8 @@ static void init_mem(int *image, int val, int n) {
 static int minvec(int *vec, int n) {
     int small = vec[0];
     for (int i = 0; i < n; i++)
-    	if (vec[i] < small)
-    	  small = vec[i];
+        if (vec[i] < small)
+            small = vec[i];
     return small;
 }
 
@@ -150,9 +150,9 @@ static int minvec(int *vec, int n) {
  */
 static int *label(int *image, int rows, int cols) {
 
-	int next_label = 1;
+    int next_label = 1;
     int neighbors[4];
-	int nc; /* neighbor count */
+    int nc; /* neighbor count */
 
     int *labels = (int *) malloc(rows * cols * sizeof(int));
 
@@ -164,68 +164,68 @@ static int *label(int *image, int rows, int cols) {
      */
     init_mem(labels, BACKGROUND, rows*cols);
 
-	for (int r = 1; r < rows - 1; r++) {
-		for (int c = 1; c < cols - 1; c++) {
+    for (int r = 1; r < rows - 1; r++) {
+        for (int c = 1; c < cols - 1; c++) {
 
-			if (image[r * cols + c] == BACKGROUND) continue;
+            if (image[r * cols + c] == BACKGROUND) continue;
 
-			/* reinitialize our short vector of neighbors */
-			init_mem(&neighbors[0], INT_MAX, 4);
-			nc = 0;
+            /* reinitialize our short vector of neighbors */
+            init_mem(&neighbors[0], INT_MAX, 4);
+            nc = 0;
 
-			/*
-			 * Keep track of which neighbors are part of the image.
-			 */
-			if (labels[r*cols + c-1] != BACKGROUND)   /* west */
-				neighbors[nc++] = labels[r*cols + c-1];
+            /*
+             * Keep track of which neighbors are part of the image.
+             */
+            if (labels[r*cols + c-1] != BACKGROUND)   /* west */
+                neighbors[nc++] = labels[r*cols + c-1];
 
-			if (labels[(r-1)*cols + (c-1)] != BACKGROUND) /* north-west */
-				neighbors[nc++] = labels[(r-1)*cols + (c-1)];
+            if (labels[(r-1)*cols + (c-1)] != BACKGROUND) /* north-west */
+                neighbors[nc++] = labels[(r-1)*cols + (c-1)];
 
-			if (labels[(r-1)*cols + c] != BACKGROUND)   /* north */
-				neighbors[nc++] = labels[(r-1)*cols + c];
+            if (labels[(r-1)*cols + c] != BACKGROUND)   /* north */
+                neighbors[nc++] = labels[(r-1)*cols + c];
 
-			if (labels[(r-1)*cols + (c+1)] != BACKGROUND) /* north-east */
-				neighbors[nc++] = labels[(r-1)*cols + (c+1)];
+            if (labels[(r-1)*cols + (c+1)] != BACKGROUND) /* north-east */
+                neighbors[nc++] = labels[(r-1)*cols + (c+1)];
 
-			/*
-			 * If none of the neighbors are part of the image and this
-			 * pixel is we *may* have found a new component.
-			 */
-			if (nc == 0) {
-				make_set(next_label);
-				labels[r*cols + c] = next_label;
-				next_label++;
-			}
-			else {
+            /*
+             * If none of the neighbors are part of the image and this
+             * pixel is we *may* have found a new component.
+             */
+            if (nc == 0) {
+                make_set(next_label);
+                labels[r*cols + c] = next_label;
+                next_label++;
+            }
+            else {
 
-				/*
-				 * Label this pixel with the smallest label of the neighbor
-				 * and also make sure all neighbors are in the same set
-				 */
+                /*
+                 * Label this pixel with the smallest label of the neighbor
+                 * and also make sure all neighbors are in the same set
+                 */
                 labels[r*cols + c] = minvec(neighbors, nc);
 
                 for (int i = 0; i < nc; i++)
                     for (int j = i+1; j < nc; j++)
                         if (neighbors[i] != neighbors[j])
-                    	    Union(neighbors[i], neighbors[j]);
-			}
+                            Union(neighbors[i], neighbors[j]);
+            }
 
-		} /* column */
-	} /* row */
+        } /* column */
+    } /* row */
 
-	/*
-	 * pass 2 patches up the components so that each component
-	 * has the same label represented from its set.
-	 */
-	for (int r = 1; r < rows - 1; r++)
-		for (int c = 1; c < cols - 1; c++)
-			if (labels[r * cols + c] != BACKGROUND)
-				labels[r*cols + c] = find_set(labels[r * cols + c]);
+    /*
+     * pass 2 patches up the components so that each component
+     * has the same label represented from its set.
+     */
+    for (int r = 1; r < rows - 1; r++)
+        for (int c = 1; c < cols - 1; c++)
+            if (labels[r * cols + c] != BACKGROUND)
+                labels[r*cols + c] = find_set(labels[r * cols + c]);
 
 
-	destroy_set(); /* we don't need the disjoint union forest any longer */
-	return labels;
+    destroy_set(); /* we don't need the disjoint union forest any longer */
+    return labels;
 } /* label */
 
 /*
@@ -238,13 +238,13 @@ static int *label(int *image, int rows, int cols) {
  * Some tests on the union find algorithm
  */
 static void test_union_find() {
-	init_set();
+    init_set();
 
     /*
      * Make a singleton set with zero in it and make sure its
      * representatrive is 0
      */
-	make_set(0);
+    make_set(0);
     assert(find_set(0) == 0);
 
 
@@ -263,8 +263,8 @@ static void test_union_find() {
     /* 1,2,3 better all be in the same set after this */
     Union(2, 3);
     assert(find_set(1) == find_set(2) &&
-    	   find_set(1) == find_set(3) &&
-    	   find_set(2) == find_set(3));
+            find_set(1) == find_set(3) &&
+            find_set(2) == find_set(3));
 
     /* 1 and 4 better not be in the same set */
     assert(find_set(1) != find_set(4));
@@ -291,26 +291,26 @@ static int assert_images_equal(int *image1, int *image2, int rows, int cols) {
  * the same as the original image.
  */
 static void test1() {
-	int image[6][6] = {
-			{0, 0, 0, 0, 0, 0},
-			{0, 1, 1, 1, 0, 0},
-			{0, 0, 0, 1, 0, 0},
-			{0, 1, 1, 1, 0, 0},
-			{0, 0, 0, 0, 1, 0},
-			{0, 0, 0, 0, 0, 0}
-	};
+    int image[6][6] = {
+            {0, 0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0, 0},
+            {0, 0, 0, 1, 0, 0},
+            {0, 1, 1, 1, 0, 0},
+            {0, 0, 0, 0, 1, 0},
+            {0, 0, 0, 0, 0, 0}
+    };
 
-	int image_answer[6][6] = {
-			{0, 0, 0, 0, 0, 0},
-			{0, 1, 1, 1, 0, 0},
-			{0, 0, 0, 1, 0, 0},
-			{0, 1, 1, 1, 0, 0},
-			{0, 0, 0, 0, 1, 0},
-			{0, 0, 0, 0, 0, 0}
-	};
+    int image_answer[6][6] = {
+            {0, 0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0, 0},
+            {0, 0, 0, 1, 0, 0},
+            {0, 1, 1, 1, 0, 0},
+            {0, 0, 0, 0, 1, 0},
+            {0, 0, 0, 0, 0, 0}
+    };
 
 
-	int *labeled_image = label(image[0], 6, 6);
+    int *labeled_image = label(image[0], 6, 6);
     assert_images_equal(labeled_image, image_answer[0], 6, 6);
 }
 
@@ -322,25 +322,25 @@ static void test1() {
  */
 static void test2() {
 
-	int image[6][6] = {
-			{0, 0, 0, 0, 0, 0},
-			{0, 1, 0, 0, 0, 0},
-			{0, 1, 0, 1, 0, 0},
-			{0, 1, 0, 1, 1, 0},
-			{0, 1, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0}
-	};
+    int image[6][6] = {
+            {0, 0, 0, 0, 0, 0},
+            {0, 1, 0, 0, 0, 0},
+            {0, 1, 0, 1, 0, 0},
+            {0, 1, 0, 1, 1, 0},
+            {0, 1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0}
+    };
 
-	int image_answer[6][6] = {
-			{0, 0, 0, 0, 0, 0},
-			{0, 1, 0, 0, 0, 0},
-			{0, 1, 0, 2, 0, 0},
-			{0, 1, 0, 2, 2, 0},
-			{0, 1, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0}
-	};
+    int image_answer[6][6] = {
+            {0, 0, 0, 0, 0, 0},
+            {0, 1, 0, 0, 0, 0},
+            {0, 1, 0, 2, 0, 0},
+            {0, 1, 0, 2, 2, 0},
+            {0, 1, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0}
+    };
 
-	int *labeled_image = label(image[0], 6, 6);
+    int *labeled_image = label(image[0], 6, 6);
     assert_images_equal(labeled_image, image_answer[0], 6, 6);
 }
 
@@ -351,62 +351,62 @@ static void test2() {
  * The test case represents that X is one components and # the other.
  *
 
-		 	   X  X  X
-		 	         X
-		 	   X     X
-		 	   X  X  X        #
-		 	            X     #
-		 	      X     X     #
-		 	      X  X  X     #
-		 	                  #
-		 	      #           #
-		 	   #     #  #  #
-		 	   #
+               X  X  X
+                     X
+               X     X
+               X  X  X        #
+                        X     #
+                  X     X     #
+                  X  X  X     #
+                              #
+                  #           #
+               #     #  #  #
+               #
 
  */
 static void test3() {
 
-	int image[13][8] = {
-		/* 0 */ 	{0, 0, 0, 0, 0, 0, 0, 0},
-		/* 8 */ 	{0, 1, 1, 1, 0, 0, 0, 0},
-		/* 16 */ 	{0, 0, 0, 1, 0, 0, 0, 0},
-		/* 24 */ 	{0, 1, 0, 1, 0, 0, 0, 0},
-		/* 32 */ 	{0, 1, 1, 1, 0, 0, 1, 0},
-		/* 40 */ 	{0, 0, 0, 0, 1, 0, 1, 0},
-		/* 48 */ 	{0, 0, 1, 0, 1, 0, 1, 0},
-		/* 56 */ 	{0, 0, 1, 1, 1, 0, 1, 0},
-		/* 64 */ 	{0, 0, 0, 0, 0, 0, 1, 0},
-		/* 72 */ 	{0, 0, 1, 0, 0, 0, 1, 0},
-		/* 80 */ 	{0, 1, 0, 1, 1, 1, 0, 0},
-		/* 88 */ 	{0, 1, 0, 0, 0, 0, 0, 0},
-		/* 96 */ 	{0, 0, 0, 0, 0, 0, 0, 0}
-	};
+    int image[13][8] = {
+            /* 0 */     {0, 0, 0, 0, 0, 0, 0, 0},
+            /* 8 */     {0, 1, 1, 1, 0, 0, 0, 0},
+            /* 16 */    {0, 0, 0, 1, 0, 0, 0, 0},
+            /* 24 */    {0, 1, 0, 1, 0, 0, 0, 0},
+            /* 32 */    {0, 1, 1, 1, 0, 0, 1, 0},
+            /* 40 */    {0, 0, 0, 0, 1, 0, 1, 0},
+            /* 48 */    {0, 0, 1, 0, 1, 0, 1, 0},
+            /* 56 */    {0, 0, 1, 1, 1, 0, 1, 0},
+            /* 64 */    {0, 0, 0, 0, 0, 0, 1, 0},
+            /* 72 */    {0, 0, 1, 0, 0, 0, 1, 0},
+            /* 80 */    {0, 1, 0, 1, 1, 1, 0, 0},
+            /* 88 */    {0, 1, 0, 0, 0, 0, 0, 0},
+            /* 96 */    {0, 0, 0, 0, 0, 0, 0, 0}
+    };
 
-	int image_answer[13][8] = {
-			{0, 0, 0, 0, 0, 0, 0, 0},
-			{0, 1, 1, 1, 0, 0, 0, 0},
-			{0, 0, 0, 1, 0, 0, 0, 0},
-			{0, 1, 0, 1, 0, 0, 0, 0},
-			{0, 1, 1, 1, 0, 0, 3, 0},
-			{0, 0, 0, 0, 1, 0, 3, 0},
-			{0, 0, 1, 0, 1, 0, 3, 0},
-			{0, 0, 1, 1, 1, 0, 3, 0},
-			{0, 0, 0, 0, 0, 0, 3, 0},
-			{0, 0, 3, 0, 0, 0, 3, 0},
-			{0, 3, 0, 3, 3, 3, 0, 0},
-			{0, 3, 0, 0, 0, 0, 0, 0},
-			{0, 0, 0, 0, 0, 0, 0, 0}
-	};
+    int image_answer[13][8] = {
+            {0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0, 0, 0, 0},
+            {0, 0, 0, 1, 0, 0, 0, 0},
+            {0, 1, 0, 1, 0, 0, 0, 0},
+            {0, 1, 1, 1, 0, 0, 3, 0},
+            {0, 0, 0, 0, 1, 0, 3, 0},
+            {0, 0, 1, 0, 1, 0, 3, 0},
+            {0, 0, 1, 1, 1, 0, 3, 0},
+            {0, 0, 0, 0, 0, 0, 3, 0},
+            {0, 0, 3, 0, 0, 0, 3, 0},
+            {0, 3, 0, 3, 3, 3, 0, 0},
+            {0, 3, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0}
+    };
 
-	int *labeled_image = label(image[0], 13, 8);
+    int *labeled_image = label(image[0], 13, 8);
     assert_images_equal(labeled_image, image_answer[0], 13, 8);
 }
 
 
 int main(void) {
-	test_union_find();
+    test_union_find();
     test1();
     test2();
     test3();
-	return 0;
+    return 0;
 }
