@@ -142,51 +142,42 @@ static int minvec(int *vec, int n) {
  * Labels the components of a binary image based on algorithm from
  * http://en.wikipedia.org/wiki/Connected-component_labeling
  *
- * This returns a new labeled image of the same dimensions as image. I
- * think we can safely change this to modify the image in place.
+ * This modifies the image in place.
  *
- * I'm not sure what the original reference is for this algorithm.
+ * I'm not sure of the original reference for this algorithm.
  *
  */
-static int *label(int *image, int rows, int cols) {
+static void label(int *image, int rows, int cols) {
 
     int next_label = 1;
     int neighbors[4];
     int nc; /* neighbor count */
 
-    int *labels = (int *) malloc(rows * cols * sizeof(int));
-
     init_set();  /* initialize the disjoint union forest */
-
-    /*
-     * Initialize the labeled image to the background. Eventually this
-     * extra image will go away.
-     */
-    init_mem(labels, BACKGROUND, rows*cols);
 
     for (int r = 1; r < rows - 1; r++) {
         for (int c = 1; c < cols - 1; c++) {
 
             if (image[r * cols + c] == BACKGROUND) continue;
 
-            /* reinitialize our short vector of neighbors */
+            /* reinitialize our vector of neighbors */
             init_mem(&neighbors[0], INT_MAX, 4);
             nc = 0;
 
             /*
              * Keep track of which neighbors are part of the image.
              */
-            if (labels[r*cols + c-1] != BACKGROUND)   /* west */
-                neighbors[nc++] = labels[r*cols + c-1];
+            if (image[r*cols + c-1] != BACKGROUND)   /* west */
+                neighbors[nc++] = image[r*cols + c-1];
 
-            if (labels[(r-1)*cols + (c-1)] != BACKGROUND) /* north-west */
-                neighbors[nc++] = labels[(r-1)*cols + (c-1)];
+            if (image[(r-1)*cols + (c-1)] != BACKGROUND) /* north-west */
+                neighbors[nc++] = image[(r-1)*cols + (c-1)];
 
-            if (labels[(r-1)*cols + c] != BACKGROUND)   /* north */
-                neighbors[nc++] = labels[(r-1)*cols + c];
+            if (image[(r-1)*cols + c] != BACKGROUND)   /* north */
+                neighbors[nc++] = image[(r-1)*cols + c];
 
-            if (labels[(r-1)*cols + (c+1)] != BACKGROUND) /* north-east */
-                neighbors[nc++] = labels[(r-1)*cols + (c+1)];
+            if (image[(r-1)*cols + (c+1)] != BACKGROUND) /* north-east */
+                neighbors[nc++] = image[(r-1)*cols + (c+1)];
 
             /*
              * If none of the neighbors are part of the image and this
@@ -194,7 +185,7 @@ static int *label(int *image, int rows, int cols) {
              */
             if (nc == 0) {
                 make_set(next_label);
-                labels[r*cols + c] = next_label;
+                image[r*cols + c] = next_label;
                 next_label++;
             }
             else {
@@ -203,7 +194,7 @@ static int *label(int *image, int rows, int cols) {
                  * Label this pixel with the smallest label of the neighbor
                  * and also make sure all neighbors are in the same set
                  */
-                labels[r*cols + c] = minvec(neighbors, nc);
+                image[r*cols + c] = minvec(neighbors, nc);
 
                 for (int i = 0; i < nc; i++)
                     for (int j = i+1; j < nc; j++)
@@ -220,12 +211,11 @@ static int *label(int *image, int rows, int cols) {
      */
     for (int r = 1; r < rows - 1; r++)
         for (int c = 1; c < cols - 1; c++)
-            if (labels[r * cols + c] != BACKGROUND)
-                labels[r*cols + c] = find_set(labels[r * cols + c]);
+            if (image[r * cols + c] != BACKGROUND)
+                image[r*cols + c] = find_set(image[r * cols + c]);
 
 
     destroy_set(); /* we don't need the disjoint union forest any longer */
-    return labels;
 } /* label */
 
 /*
@@ -310,8 +300,8 @@ static void test1() {
     };
 
 
-    int *labeled_image = label(image[0], 6, 6);
-    assert_images_equal(labeled_image, image_answer[0], 6, 6);
+    label(image[0], 6, 6);
+    assert_images_equal(image[0], image_answer[0], 6, 6);
 }
 
 
@@ -340,8 +330,8 @@ static void test2() {
             {0, 0, 0, 0, 0, 0}
     };
 
-    int *labeled_image = label(image[0], 6, 6);
-    assert_images_equal(labeled_image, image_answer[0], 6, 6);
+    label(image[0], 6, 6);
+    assert_images_equal(image[0], image_answer[0], 6, 6);
 }
 
 /*
@@ -398,8 +388,8 @@ static void test3() {
             {0, 0, 0, 0, 0, 0, 0, 0}
     };
 
-    int *labeled_image = label(image[0], 13, 8);
-    assert_images_equal(labeled_image, image_answer[0], 13, 8);
+    label(image[0], 13, 8);
+    assert_images_equal(image[0], image_answer[0], 13, 8);
 }
 
 
