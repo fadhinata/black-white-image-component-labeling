@@ -5,8 +5,10 @@
 #include <limits.h>
 #include <assert.h>  /* for unit tests only */
 
+/*
+ * The value of a background pixel.
+ */
 #define BACKGROUND 0
-typedef unsigned char Byte;
 
 /*
  * The maximum number of components allowed in this image.
@@ -18,20 +20,21 @@ typedef unsigned char Byte;
  * by Cormen, et al.
  */
 
-
 /*
  * The parent array in the disjoint union forest. See Cormen reference.
+ * We dynamically allocate this so we don't chew up static memory.
  */
-int *parent;
+static int *parent;
 
 /*
  * rank[x] is the height of the tree that x belongs to. This is used in
  * path compression to make union find fast. See Cormen reference.
+ * We dynamically allocate this so we don't chew up static memory.
  */
-int *rank;
+static int *rank;
 
 /*
- * Initialize the parent and rank arrays. We assume that there will
+ * Allocate the memory parent and rank arrays. We assume that there will
  * MAX_COMPONENTS sets.
  */
 static void init_set() {
@@ -40,7 +43,7 @@ static void init_set() {
 }
 
 /*
- * Frees up the memory used by parent and rank.
+ * Free up the memory used by parent and rank.
  */
 static void destroy_set() {
     free(parent);
@@ -50,6 +53,8 @@ static void destroy_set() {
 }
 
 /*
+ * make-set: make a singleton set { x } in the forest.
+ *
  * precondition: x < MAX_COMPONENTS. See Cormen reference.
  */
 static void make_set(int x) {
@@ -83,7 +88,8 @@ static void link(int x, int y) {
  * Return the "representative" object for the set that x is in. Just
  * keep following parents until you hit a root. This is the recursive version
  * that also does path compression by making all elements along the
- * path point to the root. The recursion will rarely be very deep.
+ * path point to the root. We don't worry about the statck size here
+ * because the recursion will not be very deep.
  *
  * For example, if we have the tree 4 -> 3 -> 2 -> 1
  * after find_set(4) we will have ...
@@ -108,6 +114,9 @@ static int find_set(int x) {
  * precondition: x and y are in two distinct sets. That is,
  *               find_set(x) != find_set(y);
  *
+ * We could probably make this a little more efficient by
+ * not having the overhead to call link; just inline link
+ * in this function.
  */
 static void Union(int x, int y) {
     link(find_set(x), find_set(y));
@@ -146,6 +155,8 @@ static int minvec(int *vec, int n) {
  *
  * I'm not sure of the original reference for this algorithm.
  *
+ * This assumes a one-pixel BACKGROUND border around the image to make
+ * checking the neighborhood around a pixel easier.
  */
 static void label(int *image, int rows, int cols) {
 
@@ -160,7 +171,11 @@ static void label(int *image, int rows, int cols) {
 
             if (image[r * cols + c] == BACKGROUND) continue;
 
-            /* reinitialize our vector of neighbors */
+            /*
+             * reinitialize our vector of neighbors. I think
+             * we can get away without this since the variable nc keeps track of
+             * exactly how many values in neighbors are being used.
+             */
             init_mem(&neighbors[0], INT_MAX, 4);
             nc = 0;
 
