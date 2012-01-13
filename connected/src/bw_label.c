@@ -13,7 +13,7 @@
 /*
  * The maximum number of components allowed in this image.
  */
-#define MAX_COMPONENTS 255
+#define MAX_COMPONENTS 1024
 
 /*
  * Disjoint union-find taken right from Introduction To Algorithms
@@ -233,6 +233,7 @@ static void label(int *image, int rows, int cols) {
     destroy_set(); /* we don't need the disjoint union forest any longer */
 } /* label */
 
+
 /*
  * -----------------------------------------------------------------------------
  * ---------------------- T E S T   M A I N ------------------------------------
@@ -240,14 +241,14 @@ static void label(int *image, int rows, int cols) {
  */
 
 /*
- * Some tests on the union find algorithm
+ * Some tests on the union-find algorithm
  */
 static void test_union_find() {
     init_set();
 
     /*
      * Make a singleton set with zero in it and make sure its
-     * representatrive is 0
+     * representative is 0
      */
     make_set(0);
     assert(find_set(0) == 0);
@@ -407,11 +408,52 @@ static void test3() {
     assert_images_equal(image[0], image_answer[0], 13, 8);
 }
 
+/*
+ * Read a text file of zeros and ones and build an image object so we can
+ * label it. The image is assumed to be 640x480.
+ */
+int* read_bin() {
+   char line[1280];
+   static int image[480][640];
+   int x = 0;
+   int y = 0;
+   int val = 0;
+
+   FILE *fp = fopen("connected_test_binary.txt", "r");
+   while (fgets(line, 2000, fp)) {  /* use a number > than the line length */
+	   char *tok = strtok(line, " ");
+	   x = 0;
+	   do {
+		   val = atoi(tok);
+		   image[y][x++] = val;
+	   } while ((tok = strtok(NULL, " ")));
+	   y++;
+   }
+   return image[0];
+}
+
+/*
+ * This is a real test where we test this on a binary image generated
+ * from connected_test.png
+ */
+void test4() {
+
+	int *image = read_bin();
+    label(image, 480, 640);
+    for (int y = 0; y < 480; y++) {
+    	for (int x = 0; x < 640; x++)
+    		printf("%d ", image[y*640 + x]);
+    	printf("\n");
+    }
+
+	return;
+}
 
 int main(void) {
     test_union_find();
     test1();
     test2();
     test3();
+	test4();
     return 0;
 }
