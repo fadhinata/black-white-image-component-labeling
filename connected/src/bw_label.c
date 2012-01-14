@@ -107,6 +107,7 @@ static int find_set(int x) {
     return parent[x];
 }
 
+
 /*
  * This unions to the two disjoint sets that x and y are in. See Cormen
  * reference.
